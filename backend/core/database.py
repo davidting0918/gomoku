@@ -11,6 +11,10 @@ class MongoAsyncClient:
         self.client = AsyncIOMotorClient(self.db_url)
         self.db = self.client[self.db_name]
 
+    def list_collections(self):
+        """List all collections in the database"""
+        return self.db.list_collection_names()
+
     async def insert_one(self, collection: str, document: dict):
         """Create a single document"""
         collection = self.db[collection]

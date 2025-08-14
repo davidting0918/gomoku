@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+user_collection = "users"
 
 class User(BaseModel):
     id: str

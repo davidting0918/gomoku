@@ -8,6 +8,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 120
 ALGORITHM = "HS256"
 ACCESS_TOKEN_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
+access_token_collection = "tokens"
+
 class GoogleAuthRequest(BaseModel):
     token: str
 
@@ -20,3 +22,11 @@ class GoogleUserInfo(BaseModel):
 class EmailAuthRequest(BaseModel):
     email: str
     pwd: str
+
+
+class AccessTokenInfo(BaseModel):
+    id: str
+    user_id: str
+    created_at: int
+    expires_at: int
+    active: bool
