@@ -17,11 +17,12 @@ async def validate_google_login_route(request: GoogleAuthRequest):
             detail="Invalid Google token"
         )
     
-    access_token = auth_service.create_access_token(data={"sub": user.id})
+    # 獲取或創建令牌
+    token_info = await auth_service.get_or_create_token(user.id)
     
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
+        "access_token": token_info["access_token"],
+        "token_type": token_info["token_type"],
         "user": {
             "id": user.id,
             "email": user.email,
@@ -38,11 +39,12 @@ async def validate_email_login_route(request: EmailAuthRequest):
             detail="Incorrect email or password"
         )
     
-    access_token = auth_service.create_access_token(data={"sub": user.id})
+    # 獲取或創建令牌
+    token_info = await auth_service.get_or_create_token(user.id)
     
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
+        "access_token": token_info["access_token"],
+        "token_type": token_info["token_type"],
         "user": {
             "id": user.id,
             "email": user.email,
@@ -59,9 +61,13 @@ async def get_access_token_route(form_data: Annotated[OAuth2PasswordRequestForm,
             detail="Incorrect username or password"
         )
     
-    access_token = auth_service.create_access_token(data={"sub": user.id})
+    # 獲取或創建令牌
+    token_info = await auth_service.get_or_create_token(user.id)
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": token_info["access_token"], 
+        "token_type": token_info["token_type"]
+    }
 
 @router.get("/users/me")
 async def read_users_me(
