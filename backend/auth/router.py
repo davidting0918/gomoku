@@ -17,7 +17,6 @@ async def validate_google_login_route(request: GoogleAuthRequest):
             detail="Invalid Google token"
         )
     
-    # 獲取或創建令牌
     token_info = await auth_service.get_or_create_token(user.id)
     
     return {
@@ -39,7 +38,6 @@ async def validate_email_login_route(request: EmailAuthRequest):
             detail="Incorrect email or password"
         )
     
-    # 獲取或創建令牌
     token_info = await auth_service.get_or_create_token(user.id)
     
     return {
@@ -61,7 +59,6 @@ async def get_access_token_route(form_data: Annotated[OAuth2PasswordRequestForm,
             detail="Incorrect username or password"
         )
     
-    # 獲取或創建令牌
     token_info = await auth_service.get_or_create_token(user.id)
     
     return {
