@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
 from typing import Optional
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
 
 load_dotenv("backend/.env")
 
@@ -10,6 +12,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 access_token_collection = "tokens"
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/access_token")
+
 
 class GoogleAuthRequest(BaseModel):
     token: str

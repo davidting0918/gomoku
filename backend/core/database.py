@@ -6,7 +6,7 @@ load_dotenv("backend/.env")
 
 class MongoAsyncClient:
     def __init__(self):
-        self.db_url = os.getenv("MONGO_URI")
+        self.db_url = os.getenv("MONGO_URL")
         self.db_name = os.getenv("MONGO_DB_NAME")
         self.client = AsyncIOMotorClient(self.db_url)
         self.db = self.client[self.db_name]

@@ -1,8 +1,6 @@
 from typing import Annotated, Optional
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from datetime import datetime as dt, timedelta as td, timezone as tz
 from backend.core.database import MongoAsyncClient
 from backend.core.model.user import User, user_collection
@@ -11,15 +9,13 @@ from backend.core.model.auth import (
     ALGORITHM, 
     ACCESS_TOKEN_SECRET_KEY,
     access_token_collection,
-    AccessToken
+    AccessToken,
+    oauth2_scheme,
+    pwd_context
 )
 from backend.auth.providers.google import GoogleAuthProvider
 import uuid
 import os
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/access_token")
 
 class AuthService:
     def __init__(self):
@@ -133,7 +129,7 @@ class AuthService:
             return user
         else:
             new_user = User(
-                id=str(uuid.uuid4()),
+                id=str(uuid.uuid4())[:8],
                 google_id=google_user_info.id,
                 email=google_user_info.email,
                 hashed_pwd=self.get_password_hash(google_user_info.id),
