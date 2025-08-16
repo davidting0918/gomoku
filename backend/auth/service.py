@@ -150,10 +150,9 @@ class AuthService:
         
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            user_id: str = payload.get("user_id")
-            token_id: str = payload.get("jti")
+            user_id: str = payload.get("sub")  
             
-            if user_id is None or token_id is None:
+            if user_id is None:
                 raise credentials_exception
                 
         except JWTError:
