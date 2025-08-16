@@ -20,3 +20,14 @@ async def create_user(request: CreateUserRequest) -> dict:
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/info")
+async def get_user_info(user_id: str) -> dict:
+    try:
+        user_info = await user_service.get_user_info(user_id)
+        return {
+            "status": 1,
+            "data": user_info.model_dump()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

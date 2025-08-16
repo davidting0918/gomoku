@@ -37,3 +37,17 @@ class UserService:
             updated_at=user.updated_at,
             is_active=user.is_active
         )
+    
+    async def get_user_info(self, user_id: str) -> UserInfo:
+        user_dict = await self.db.find_one(user_collection, {"id": user_id})
+        if not user_dict:
+            raise HTTPException(status_code=404, detail="User not found")
+        user = User(**user_dict)
+        return UserInfo(
+            id=user.id,
+            email=user.email,
+            name=user.name,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            is_active=user.is_active
+        )
