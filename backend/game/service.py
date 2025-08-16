@@ -18,7 +18,12 @@ class GameService:
         while True:
             search_id = str(random.randint(100000, 999999))
             if not await self.db.find_one(game_collection, {"search_id": search_id}):
+        MAX_ATTEMPTS = 10
+        for _ in range(MAX_ATTEMPTS):
+            search_id = str(random.randint(100000, 999999))
+            if not await self.db.find_one(game_collection, {"search_id": search_id}):
                 return search_id
+        raise HTTPException(status_code=500, detail="Unable to generate unique search_id after multiple attempts")
 
     async def create_game(self, user_id: str, request: CreateGameRequest) -> Game:
         game = Game(
