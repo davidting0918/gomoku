@@ -31,7 +31,7 @@ async def validate_google_login_route(request: GoogleAuthRequest):
 
 @router.post("/email/login")
 async def validate_email_login_route(request: EmailAuthRequest):
-    user = await auth_service.authenticate_user(request.email, request.pwd)
+    user = await auth_service.authenticate_user(email=request.email, password=request.pwd)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,7 +52,7 @@ async def validate_email_login_route(request: EmailAuthRequest):
 
 @router.post("/access_token")
 async def get_access_token_route(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user = await auth_service.authenticate_user(form_data.username, form_data.password)
+    user = await auth_service.authenticate_user(name=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
