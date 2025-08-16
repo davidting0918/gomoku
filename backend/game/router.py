@@ -81,33 +81,17 @@ async def gomoku_move(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@router.get("/gomoku/{game_id}/board")
-async def get_gomoku_board(
+@router.get("/gomoku/{game_id}/status")
+async def get_gomoku_status(
     game_id: str,
     current_user: Annotated[User, Depends(get_current_active_user)]
 ) -> dict:
     try:
-        board = await game_service.get_gomoku_board(current_user.id, game_id)
+        game = await game_service.get_gomoku_status(current_user.id, game_id)
         return {
             "status": 1,
-            "data": board,
+            "data": game.model_dump(),
             "message": f"Gomoku board retrieved successfully by {current_user.name}"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/gomoku/{game_id}/check_win")
-async def check_gomoku_win(
-    game_id: str,
-    current_user: Annotated[User, Depends(get_current_active_user)]
-) -> dict:
-    try:
-        winner = await game_service.check_gomoku_win(current_user.id, game_id)
-        return {
-            "status": 1,
-            "data": winner,
-            "message": f"Gomoku win checked successfully by {current_user.name}"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    

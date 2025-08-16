@@ -86,13 +86,13 @@ class GameService:
         await self.db.update_one(game_collection, {"id": game.id}, {"$set": game.model_dump()})
         return game
     
-    async def get_gomoku_board(self, user_id: str, game_id: str) -> dict:
+    async def get_gomoku_status(self, user_id: str, game_id: str) -> dict:
         game = await self.get_game(game_id)
 
         if user_id != game.data["p1_id"] and user_id != game.data["p2_id"]:
             raise HTTPException(status_code=403, detail="You are not allowed to access this game")
         
-        return game.data["board"]
+        return game
     
     async def check_gomoku_win(self, user_id: str, game_id: str) -> str:
         game = await self.get_game(game_id)

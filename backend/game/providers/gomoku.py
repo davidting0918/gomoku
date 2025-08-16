@@ -55,6 +55,5 @@ class Gomoku:
         
     
     def check_win(self, board: dict) -> str:
-        
-        directions = []
-        return
+        """Accept a board data and use DFS to check whether a player wins"""
+        raise NotImplementedError("Not implemented")

@@ -32,4 +32,3 @@ class Game(BaseModel):
 class GomokuMoveRequest(BaseModel):
     x: int
     y: int
-    color: str
