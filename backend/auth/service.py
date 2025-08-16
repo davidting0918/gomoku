@@ -17,9 +17,10 @@ from backend.auth.providers.google import GoogleAuthProvider
 import uuid
 import os
 
+_db = MongoAsyncClient()
 class AuthService:
     def __init__(self):
-        self.db = MongoAsyncClient()
+        self.db = _db
         self.google_provider = GoogleAuthProvider(
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
             client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
@@ -94,8 +95,8 @@ class AuthService:
                 "token_type": "bearer",
             }
 
-    async def authenticate_user(self, email: str, password: str) -> Optional[User]:
-        user_dict = await self.db.find_one(user_collection, {"email": email})
+    async def authenticate_user(self, name: str, password: str) -> Optional[User]:
+        user_dict = await self.db.find_one(user_collection, {"name": name})
         if not user_dict:
             return None
         
@@ -141,30 +142,41 @@ class AuthService:
             await self.db.insert_one(user_collection, new_user.model_dump())
             return new_user
 
-    async def get_current_user(self, token: Annotated[str, Depends(oauth2_scheme)]) -> User:
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+# separated function for other routers authentication
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+    """
+    Dependency function to get current authenticated user from JWT token
+    This can be used across all routers without instantiating AuthService
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = jwt.decode(token, ACCESS_TOKEN_SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
         
-        try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            user_id: str = payload.get("sub")  
+        if user_id is None:
+            raise credentials_exception
             
-            if user_id is None:
-                raise credentials_exception
-                
-        except JWTError:
-            raise credentials_exception
-        
-        user_dict = await self.db.find_one(user_collection, {"id": user_id})
-        if user_dict is None:
-            raise credentials_exception
-        
-        return User(**user_dict)
+    except JWTError:
+        raise credentials_exception
+    
+    user_dict = await _db.find_one(user_collection, {"id": user_id})
+    if user_dict is None:
+        raise credentials_exception
+    
+    return User(**user_dict)
 
-    async def get_current_active_user(self, current_user: Annotated[User, Depends(get_current_user)]) -> User:
-        if not current_user.is_active:
-            raise HTTPException(status_code=400, detail="Inactive user")
-        return current_user
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+) -> User:
+    """
+    Dependency function to get current active user
+    Ensures the user account is not deactivated
+    """
+    if not current_user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user

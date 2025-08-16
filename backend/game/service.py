@@ -20,11 +20,11 @@ class GameService:
             if not await self.db.find_one(game_collection, {"search_id": search_id}):
                 return search_id
 
-    async def create_game(self, request: CreateGameRequest) -> Game:
+    async def create_game(self, user_id: str, request: CreateGameRequest) -> Game:
         game = Game(
             id=self.create_game_id(),
             search_id=await self.create_search_id(),
-            user_id=request.user_id,
+            user_id=user_id,
             type=request.type,
             created_at=int(dt.now(tz.utc).timestamp()),
             updated_at=int(dt.now(tz.utc).timestamp()),
@@ -34,7 +34,7 @@ class GameService:
 
         if request.type == GameType.GOMOKU:
             game.data = {
-                "p1_user_id": request.user_id,
+                "p1_user_id": user_id,
                 "p2_user_id": None,
                 "p1_color": "black",
                 "p2_color": "white",
@@ -44,7 +44,7 @@ class GameService:
         await self.db.insert_one(game_collection, game.model_dump())
         return game
     
-    async def join_game(self, request: JoinGameRequest) -> Game:
+    async def join_game(self, user_id: str, request: JoinGameRequest) -> Game:
         game = await self.db.find_one(game_collection, {"search_id": request.search_id})
         if not game:
             raise HTTPException(status_code=404, detail=f"Game with search_id {request.search_id} not found")
@@ -53,8 +53,8 @@ class GameService:
         if not game.is_active or not game.can_join:
             raise HTTPException(status_code=400, detail="Game is not active or can't join")
         
-        if game.type == GameType.GOMOKU:
-            game.data["p2_user_id"] = request.user_id
+        if game.type == GameType.GOMOKU.value:
+            game.data["p2_user_id"] = user_id
             game.can_join = False
             await self.db.update_one(game_collection, {"id": game.id}, {"$set": game.model_dump()})
 

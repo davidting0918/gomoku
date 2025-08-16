@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from enum import Enum
 
 game_collection = "games"
@@ -8,15 +8,16 @@ class GameType(Enum):
 
 
 class CreateGameRequest(BaseModel):
-    user_id: str
     type: GameType
 
 class JoinGameRequest(BaseModel):
-    user_id: str
     search_id: str
 
 
 class Game(BaseModel):
+
+    model_config = ConfigDict(use_enum_values=True)
+
     id: str
     search_id: str  # 6 digits
     user_id: str

@@ -65,14 +65,3 @@ async def get_access_token_route(form_data: Annotated[OAuth2PasswordRequestForm,
         "access_token": token_info["access_token"], 
         "token_type": token_info["token_type"]
     }
-
-@router.get("/users/me")
-async def read_users_me(
-    current_user: Annotated[User, Depends(auth_service.get_current_active_user)],
-):
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-        "name": current_user.name,
-        "is_active": current_user.is_active
-    }

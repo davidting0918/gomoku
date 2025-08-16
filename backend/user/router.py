@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Annotated
 from backend.core.model.user import CreateUserRequest, User
 from backend.user.service import UserService
-from backend.auth.service import AuthService
+from backend.auth.service import get_current_active_user
+
 
 router = APIRouter(
     prefix="/user",
@@ -10,7 +11,6 @@ router = APIRouter(
 )
 
 user_service = UserService()
-auth_service = AuthService()
 
 # Public endpoint - no JWT token required
 @router.post("/create")
@@ -32,7 +32,7 @@ async def create_user(request: CreateUserRequest) -> dict:
 # Protected endpoint - JWT token required
 @router.get("/me")
 async def get_current_user_info(
-    current_user: Annotated[User, Depends(auth_service.get_current_active_user)]
+    current_user: Annotated[User, Depends(get_current_active_user)]
 ) -> dict:
     """
     Get current user info - requires JWT authentication
