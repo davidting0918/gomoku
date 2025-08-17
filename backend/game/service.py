@@ -65,7 +65,7 @@ class GameService:
         if game.type == GameType.GOMOKU.value:
             game.data["p2_id"] = user_id
             game.can_join = False
-            await self.db.update_one(game_collection, {"id": game.id}, {"$set": game.model_dump()})
+            await self.db.update_one(game_collection, {"id": game.id}, game.model_dump())
 
         game.updated_at = int(dt.now(tz.utc).timestamp())
         return game
@@ -83,7 +83,7 @@ class GameService:
         if is_win:
             game.data['winner'] = color
         game.updated_at = int(dt.now(tz.utc).timestamp())
-        await self.db.update_one(game_collection, {"id": game.id}, {"$set": game.model_dump()})
+        await self.db.update_one(game_collection, {"id": game.id}, game.model_dump())
         return game
     
     async def get_gomoku_status(self, user_id: str, game_id: str) -> dict:
