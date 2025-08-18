@@ -31,4 +31,5 @@ class Game(BaseModel):
 # Gomoku related models
 class GomokuMoveRequest(BaseModel):
     x: int
-    y: int
+    x: int = Field(..., ge=0, le=18)
+    y: int = Field(..., ge=0, le=18)
