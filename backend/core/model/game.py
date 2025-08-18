@@ -27,3 +27,9 @@ class Game(BaseModel):
     is_active: bool = True
     can_join: bool = True
     data: dict = {}
+
+# Gomoku related models
+class GomokuMoveRequest(BaseModel):
+    x: int
+    x: int = Field(..., ge=0, le=18)
+    y: int = Field(..., ge=0, le=18)

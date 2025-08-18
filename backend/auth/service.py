@@ -95,8 +95,14 @@ class AuthService:
                 "token_type": "bearer",
             }
 
-    async def authenticate_user(self, name: str, password: str) -> Optional[User]:
-        user_dict = await self.db.find_one(user_collection, {"name": name})
+    async def authenticate_user(self, name: str = None, email: str = None, password: str = None) -> Optional[User]:
+        if name:
+            user_dict = await self.db.find_one(user_collection, {"name": name})
+        elif email:
+            user_dict = await self.db.find_one(user_collection, {"email": email})
+        else:
+            raise ValueError("Either name or email must be provided")
+        
         if not user_dict:
             return None
         
